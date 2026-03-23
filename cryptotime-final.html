@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CryptoTime — Crypto Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Unbounded:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{--ink:#05080C;--ink1:#090E16;--ink2:#0D1520;--ink3:#111E2E;--ink4:#16253A;--border:#1A2840;--border2:#223250;--amber:#F7931A;--amber2:#FFB347;--teal:#0CF2AC;--red:#FF2D55;--blue:#4B9FFF;--txt:#B8CCDF;--txt2:#6B8BAA;--txt3:#304560;--white:#E8F0F8}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--txt);font-family:'JetBrains Mono',monospace;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px);pointer-events:none;z-index:9998}
+.ticker{background:var(--ink1);border-bottom:1px solid var(--border);height:30px;overflow:hidden;position:relative}
+.ticker::before,.ticker::after{content:'';position:absolute;top:0;bottom:0;width:80px;z-index:2}
+.ticker::before{left:0;background:linear-gradient(90deg,var(--ink1),transparent)}
+.ticker::after{right:0;background:linear-gradient(-90deg,var(--ink1),transparent)}
+.ticker-track{display:flex;align-items:center;height:100%;animation:scroll 50s linear infinite;width:max-content}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.t-item{display:inline-flex;align-items:center;gap:7px;padding:0 22px;font-size:11px;border-right:1px solid var(--border);height:100%}
+.t-sym{color:var(--txt2);font-weight:600;letter-spacing:.5px}
+.t-px{color:var(--white);font-weight:500}
+.t-up{color:var(--teal);font-weight:600}
+.t-dn{color:var(--red);font-weight:600}
+header{background:rgba(5,8,12,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100}
+.hdr{display:flex;align-items:center;justify-content:space-between;max-width:1600px;margin:0 auto;padding:0 24px;height:56px}
+.logo{display:flex;align-items:center;gap:14px}
+.logo-mark{font-family:'Unbounded',sans-serif;font-weight:900;font-size:18px;letter-spacing:.5px;color:var(--white);line-height:1}
+.logo-mark span{color:var(--amber)}
+.logo-tag{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--txt3);border:1px solid var(--border2);padding:3px 8px;border-radius:3px}
+.hdr-stats{display:flex;align-items:center;gap:0}
+.hstat{display:flex;flex-direction:column;align-items:flex-end;padding:0 20px;border-right:1px solid var(--border)}
+.hstat:last-child{border-right:none;padding-right:0}
+.hstat-l{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--txt3)}
+.hstat-v{font-size:13px;color:var(--white);font-weight:500;margin-top:2px}
+.live-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;background:rgba(12,242,172,.07);border:1px solid rgba(12,242,172,.2);margin-left:20px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);box-shadow:0 0 6px var(--teal);animation:lp 2s ease infinite}
+@keyframes lp{0%,100%{opacity:1;box-shadow:0 0 6px var(--teal)}50%{opacity:.3;box-shadow:none}}
+.live-txt{font-size:9px;letter-spacing:2px;color:var(--teal)}
+.nav{background:var(--ink1);border-bottom:1px solid var(--border)}
+.nav-inner{display:flex;max-width:1600px;margin:0 auto;padding:0 24px}
+.ntab{padding:12px 20px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--txt3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:color .2s,border-color .2s}
+.ntab:hover{color:var(--txt2)}
+.ntab.on{color:var(--amber);border-bottom-color:var(--amber)}
+.page{display:none}
+.page.on{display:block}
+.wrap{max-width:1600px;margin:0 auto;padding:24px}
+.hero{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.hcard{background:var(--ink1);border:1px solid var(--border);border-radius:10px;padding:20px 22px;position:relative;overflow:hidden;transition:border-color .2s}
+.hcard:hover{border-color:var(--border2)}
+.hcard::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--amber),transparent)}
+.hcard-label{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--txt3);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.hcard-label::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--amber);flex-shrink:0}
+.hcard-val{font-family:'Unbounded',sans-serif;font-size:28px;font-weight:700;color:var(--white);line-height:1;margin-bottom:8px;letter-spacing:-1px}
+.hcard-sub{font-size:12px;font-weight:600}
+.hcard-meta{font-size:9px;color:var(--txt3);margin-top:4px;letter-spacing:.5px}
+.col-up{color:var(--teal)}
+.col-dn{color:var(--red)}
+.fg-gauge{margin-top:8px}
+.fg-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--red) 0%,#FF6B00 25%,var(--amber) 50%,#A8D400 75%,var(--teal) 100%);position:relative;margin-bottom:4px}
+.fg-needle{position:absolute;top:-3px;width:12px;height:12px;border-radius:50%;background:var(--white);border:2px solid var(--ink);transform:translateX(-50%);transition:left 1s cubic-bezier(.4,0,.2,1);box-shadow:0 0 8px rgba(0,0,0,.5)}
+.fg-labels{display:flex;justify-content:space-between;font-size:8px;color:var(--txt3);letter-spacing:.5px}
+.sec{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sec-t{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;color:var(--white);display:flex;align-items:center;gap:10px}
+.sec-t::before{content:'';width:3px;height:14px;background:var(--amber);border-radius:2px}
+.sec-count{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--txt3);background:var(--ink2);border:1px solid var(--border);padding:2px 8px;border-radius:3px}
+.btn{display:inline-flex;align-items:center;gap:6px;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;transition:all .18s}
+.btn-ghost{background:var(--ink2);border:1px solid var(--border2);color:var(--txt2);padding:7px 14px;border-radius:6px}
+.btn-ghost:hover{border-color:var(--txt3);color:var(--white)}
+.btn-amber{background:var(--amber);color:#000;padding:8px 16px;border-radius:6px;font-weight:700}
+.btn-amber:hover{background:var(--amber2);transform:translateY(-1px)}
+.btn svg{width:12px;height:12px;flex-shrink:0}
+.tbl-wrap{background:var(--ink1);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px}
+.tbl-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--ink2)}
+.tbl-head{display:grid;grid-template-columns:48px 2.2fr 1.6fr 90px 90px 100px 130px 110px 90px;padding:9px 20px;background:var(--ink2);border-bottom:1px solid var(--border)}
+.tbl-row{display:grid;grid-template-columns:48px 2.2fr 1.6fr 90px 90px 100px 130px 110px 90px;padding:13px 20px;border-bottom:1px solid rgba(26,40,64,.6);align-items:center;transition:background .1s;cursor:pointer}
+.tbl-row:last-child{border-bottom:none}
+.tbl-row:hover{background:rgba(247,147,26,.03)}
+.th{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--txt3)}
+.th.r{text-align:right}
+.rank{font-size:11px;color:var(--txt3);font-weight:500}
+.coin-cell{display:flex;align-items:center;gap:11px}
+.coin-img{width:32px;height:32px;border-radius:50%;background:var(--ink3);border:1px solid var(--border);flex-shrink:0;overflow:hidden}
+.coin-img img{width:100%;height:100%;border-radius:50%}
+.coin-n{font-family:'Unbounded',sans-serif;font-size:12px;font-weight:600;color:var(--white)}
+.coin-s{font-size:9px;color:var(--txt3);letter-spacing:1px;margin-top:2px}
+.price-c{text-align:right;font-size:13px;font-weight:600;color:var(--white)}
+.chg-c{text-align:right;font-size:11px;font-weight:600}
+.vol-c,.cap-c{text-align:right;font-size:10px;color:var(--txt2)}
+.spark-c{display:flex;justify-content:flex-end;align-items:center}
+canvas.spk{width:80px;height:30px}
+.movers{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.mover-panel{background:var(--ink1);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.mover-head{padding:12px 18px;border-bottom:1px solid var(--border);background:var(--ink2);font-family:'Unbounded',sans-serif;font-size:10px;font-weight:600;display:flex;align-items:center;gap:8px}
+.mover-row{display:flex;align-items:center;padding:11px 18px;border-bottom:1px solid rgba(26,40,64,.5);transition:background .1s;cursor:pointer;gap:10px}
+.mover-row:last-child{border-bottom:none}
+.mover-row:hover{background:rgba(247,147,26,.03)}
+.mover-pos{width:18px;font-size:9px;color:var(--txt3);text-align:center;flex-shrink:0}
+.mover-logo{width:28px;height:28px;border-radius:50%;background:var(--ink3);border:1px solid var(--border);overflow:hidden;flex-shrink:0}
+.mover-logo img{width:100%;height:100%;border-radius:50%}
+.mover-info{flex:1}
+.mover-name{font-size:12px;font-weight:600;color:var(--white)}
+.mover-price{font-size:10px;color:var(--txt2);margin-top:1px}
+.mover-chg{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700}
+.mover-bar{width:50px;height:4px;border-radius:2px;background:var(--ink3);overflow:hidden;flex-shrink:0}
+.mover-fill{height:100%;border-radius:2px}
+.indicators{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.icard{background:var(--ink1);border:1px solid var(--border);border-radius:10px;padding:18px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s}
+.icard:hover{border-color:var(--border2);transform:translateY(-2px)}
+.icard-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.icard-icon{font-size:18px;width:34px;height:34px;background:var(--ink2);border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
+.icard-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--txt3);text-align:right;line-height:1.4;max-width:100px}
+.icard-val{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:700;color:var(--white);line-height:1;margin-bottom:6px}
+.icard-sub{font-size:10px;font-weight:600;margin-bottom:4px}
+.icard-desc{font-size:9px;color:var(--txt3);line-height:1.5;border-top:1px solid var(--border);padding-top:8px;margin-top:6px}
+.dom-bar{height:8px;border-radius:4px;background:var(--ink3);overflow:hidden;margin:8px 0 4px}
+.dom-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--amber),var(--amber2));transition:width 1s ease}
+.dom-labels{display:flex;justify-content:space-between;font-size:8px;color:var(--txt3)}
+.news-grid{display:grid;grid-template-columns:1fr 310px;gap:16px}
+.news-feed{background:var(--ink1);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.nitem{display:flex;gap:0;border-bottom:1px solid rgba(26,40,64,.6);transition:background .1s;cursor:pointer}
+.nitem:last-child{border-bottom:none}
+.nitem:hover{background:rgba(247,147,26,.03)}
+.nbar{width:3px;flex-shrink:0}
+.nbody{padding:16px 18px;flex:1}
+.ntags{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center}
+.ntag{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:3px;font-weight:700}
+.ntag-bull{background:rgba(12,242,172,.1);color:var(--teal);border:1px solid rgba(12,242,172,.2)}
+.ntag-bear{background:rgba(255,45,85,.1);color:var(--red);border:1px solid rgba(255,45,85,.2)}
+.ntag-neut{background:rgba(247,147,26,.1);color:var(--amber);border:1px solid rgba(247,147,26,.2)}
+.ntag-src{background:var(--ink3);color:var(--txt2);border:1px solid var(--border2)}
+.ntag-time{font-size:8px;color:var(--txt3);margin-left:auto}
+.ntitle{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:600;color:var(--white);margin-bottom:7px;line-height:1.4}
+.nai{font-size:11px;color:var(--txt2);line-height:1.65;margin-bottom:9px}
+.nai b{color:var(--txt)}
+.ncoins{display:flex;gap:5px}
+.ncoin{font-size:8px;letter-spacing:1px;padding:2px 7px;border-radius:3px;background:rgba(75,159,255,.1);color:var(--blue);border:1px solid rgba(75,159,255,.2)}
+.ai-box{background:var(--ink1);border:1px solid var(--border);border-radius:10px;overflow:hidden;position:sticky;top:116px}
+.ai-hd{padding:14px 16px;border-bottom:1px solid var(--border);background:var(--ink2);display:flex;align-items:center;gap:10px}
+.ai-ava{width:30px;height:30px;background:linear-gradient(135deg,var(--amber),#FF6B20);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ai-title{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;color:var(--white)}
+.ai-sub{font-size:8px;color:var(--txt3);letter-spacing:1px;margin-top:2px}
+.ai-body{padding:16px}
+.ai-text{font-size:11px;line-height:1.8;color:var(--txt);margin-bottom:18px}
+.ai-text b{color:var(--white)}
+.sig-lbl{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--txt3);margin-bottom:8px}
+.sig{display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--ink2);border:1px solid var(--border);border-radius:7px;margin-bottom:7px;transition:border-color .15s}
+.sig:hover{border-color:var(--border2)}
+.sig-sym{font-size:11px;font-weight:700;color:var(--white);width:36px}
+.sig-mood{flex:1;font-size:10px;color:var(--txt2)}
+.sig-ico{font-size:14px}
+.hmgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:20px}
+.hmcell{border-radius:8px;padding:14px 12px;text-align:center;cursor:pointer;transition:transform .12s,filter .12s;position:relative;overflow:hidden}
+.hmcell::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.05),transparent);border-radius:8px}
+.hmcell:hover{transform:scale(1.04);filter:brightness(1.12)}
+.hm-s{font-size:8px;letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;opacity:.75}
+.hm-v{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:800;line-height:1}
+.coin-hm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:7px;margin-bottom:20px}
+.chm-cell{border-radius:7px;padding:11px 10px;text-align:center;cursor:pointer;transition:transform .12s}
+.chm-sym{font-size:9px;letter-spacing:1.5px;margin-bottom:5px}
+.chm-pct{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700}
+.skel{background:linear-gradient(90deg,var(--ink2) 25%,var(--ink3) 50%,var(--ink2) 75%);background-size:200% 100%;animation:sk 1.4s ease infinite;border-radius:4px}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--ink2);border:1px solid var(--amber);color:var(--amber);font-size:11px;letter-spacing:1px;padding:12px 20px;border-radius:8px;z-index:9997;transform:translateY(60px);opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1)}
+.toast.on{transform:translateY(0);opacity:1}
+#snap{position:fixed;left:-9999px;top:-9999px;width:1280px;background:var(--ink)}
+@media(max-width:1280px){.hero{grid-template-columns:repeat(2,1fr)}.indicators{grid-template-columns:repeat(3,1fr)}.tbl-head,.tbl-row{grid-template-columns:40px 2fr 1.4fr 80px 80px 100px 100px 90px}.spark-c,.th:last-child{display:none}.news-grid{grid-template-columns:1fr}.hmgrid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){.hero{grid-template-columns:repeat(2,1fr)}.movers{grid-template-columns:1fr}.hdr-stats{display:none}.tbl-head,.tbl-row{grid-template-columns:40px 2fr 1.2fr 80px 80px}.vol-c,.cap-c,.th:nth-child(7),.th:nth-child(8){display:none}}
+@media(max-width:600px){.wrap{padding:12px}.hero{grid-template-columns:1fr 1fr}.indicators{grid-template-columns:1fr 1fr}.hmgrid{grid-template-columns:repeat(2,1fr)}.hcard-val{font-size:20px}}
+</style>
+</head>
+<body>
+<div class="ticker"><div class="ticker-track" id="tk"></div></div>
+<header>
+<div class="hdr">
+  <div class="logo">
+    <div class="logo-mark">Crypto<span>Time</span></div>
+    <div class="logo-tag">Intelligence</div>
+  </div>
+  <div class="hdr-stats">
+    <div class="hstat"><span class="hstat-l">Market Cap</span><span class="hstat-v" id="gMcap">—</span></div>
+    <div class="hstat"><span class="hstat-l">BTC Dom.</span><span class="hstat-v" id="gDom">—</span></div>
+    <div class="hstat"><span class="hstat-l">24h Volume</span><span class="hstat-v" id="gVol">—</span></div>
+    <div class="hstat"><span class="hstat-l">Активних монет</span><span class="hstat-v" id="gActive">—</span></div>
+    <div class="live-pill"><div class="live-dot"></div><span class="live-txt">LIVE</span></div>
+  </div>
+</div>
+</header>
+<div class="nav">
+<div class="nav-inner">
+  <button class="ntab on" onclick="goPage('market',this)">Ринок</button>
+  <button class="ntab" onclick="goPage('movers',this)">Топ Муверс</button>
+  <button class="ntab" onclick="goPage('heatmap',this)">Heatmap</button>
+  <button class="ntab" onclick="goPage('news',this)">AI Новини</button>
+</div>
+</div>
+
+<div id="p-market" class="page on">
+<div class="wrap">
+  <div class="hero">
+    <div class="hcard">
+      <div class="hcard-label">Bitcoin (BTC)</div>
+      <div class="hcard-val" id="hBtcP">—</div>
+      <div class="hcard-sub col-up" id="hBtcC">—</div>
+      <div class="hcard-meta" id="hBtcM">Ринкова капіталізація —</div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-label">Ethereum (ETH)</div>
+      <div class="hcard-val" id="hEthP">—</div>
+      <div class="hcard-sub col-up" id="hEthC">—</div>
+      <div class="hcard-meta" id="hEthM">ETH/BTC —</div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-label">Fear &amp; Greed Index</div>
+      <div class="hcard-val" id="hFgV">—</div>
+      <div class="hcard-sub" id="hFgL">—</div>
+      <div class="fg-gauge">
+        <div class="fg-track"><div class="fg-needle" id="fgNeedle" style="left:50%"></div></div>
+        <div class="fg-labels"><span>Страх</span><span>Нейтрально</span><span>Жадібність</span></div>
+      </div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-label">Лідер 24г</div>
+      <div class="hcard-val" id="hTopS" style="font-size:18px">—</div>
+      <div class="hcard-sub col-up" id="hTopC">—</div>
+      <div class="hcard-meta" id="hTopM">—</div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-t">Криптовалютний ринок <span class="sec-count" id="coinCount">—</span></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" onclick="reload()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+        Оновити
+      </button>
+      <button class="btn btn-amber" onclick="doSnap()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Зберегти картинку
+      </button>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <div class="tbl-head">
+      <div class="th">#</div><div class="th">Монета</div><div class="th r">Ціна</div>
+      <div class="th r">1год</div><div class="th r">24год</div><div class="th r">7 днів</div>
+      <div class="th r">Об'єм 24г</div><div class="th r">Капіталізація</div><div class="th r">7д графік</div>
+    </div>
+    <div id="coinsBody">
+      <div style="padding:40px;text-align:center">
+        <div class="skel" style="width:100%;height:44px;border-radius:6px;margin-bottom:8px"></div>
+        <div class="skel" style="width:100%;height:44px;border-radius:6px;margin-bottom:8px"></div>
+        <div class="skel" style="width:100%;height:44px;border-radius:6px"></div>
+      </div>
+    </div>
+  </div>
+  <div class="sec" style="margin-top:4px"><div class="sec-t">Ринкові Індикатори</div></div>
+  <div class="indicators">
+    <div class="icard">
+      <div class="icard-top"><div class="icard-icon">₿</div><div class="icard-label">BTC<br>Домінація</div></div>
+      <div class="icard-val" id="iBtcDom">—</div>
+      <div class="dom-bar"><div class="dom-fill" id="iBtcDomBar" style="width:0"></div></div>
+      <div class="dom-labels"><span>Альти</span><span>BTC</span></div>
+      <div class="icard-desc">Частка BTC у загальній капіталізації. Вище 50% = гроші у BTC, нижче = альтсезон.</div>
+    </div>
+    <div class="icard">
+      <div class="icard-top"><div class="icard-icon">📊</div><div class="icard-label">Vol/MCap<br>Коефіцієнт</div></div>
+      <div class="icard-val" id="iVolRatio">—</div>
+      <div class="icard-sub" id="iVolRatioS">—</div>
+      <div class="icard-desc">Відношення обсягу торгів до капіталізації. Вище 10% — активний ринок з гарною ліквідністю.</div>
+    </div>
+    <div class="icard">
+      <div class="icard-top"><div class="icard-icon">🔥</div><div class="icard-label">Топ Гейнер<br>24 год</div></div>
+      <div class="icard-val" id="iGainerSym" style="font-size:16px">—</div>
+      <div class="icard-sub col-up" id="iGainerChg">—</div>
+      <div class="icard-desc" id="iGainerDesc">Найбільший ріст серед топ-50 монет за останні 24 години.</div>
+    </div>
+    <div class="icard">
+      <div class="icard-top"><div class="icard-icon">💧</div><div class="icard-label">Ринок<br>в зеленому</div></div>
+      <div class="icard-val" id="iGreenPct">—</div>
+      <div class="icard-sub" id="iGreenSub">—</div>
+      <div class="icard-desc">Відсоток монет з позитивною зміною за 24г. Вище 60% — загальний бичачий настрій ринку.</div>
+    </div>
+    <div class="icard">
+      <div class="icard-top"><div class="icard-icon">📉</div><div class="icard-label">Топ Лузер<br>24 год</div></div>
+      <div class="icard-val" id="iLoserSym" style="font-size:16px">—</div>
+      <div class="icard-sub col-dn" id="iLoserChg">—</div>
+      <div class="icard-desc" id="iLoserDesc">Найбільше падіння серед топ-50 монет за останні 24 години.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div id="p-movers" class="page">
+<div class="wrap">
+  <div class="sec"><div class="sec-t">Топ Гейнери та Лузери · 24 год</div></div>
+  <div class="movers" id="moversGrid"></div>
+  <div class="sec"><div class="sec-t">Топ за Обсягом · 24 год</div></div>
+  <div class="tbl-wrap">
+    <div class="tbl-head">
+      <div class="th">#</div><div class="th">Монета</div><div class="th r">Ціна</div>
+      <div class="th r">1год</div><div class="th r">24год</div><div class="th r">7 днів</div>
+      <div class="th r">Об'єм 24г</div><div class="th r">Капіталізація</div><div class="th r">7д графік</div>
+    </div>
+    <div id="volBody"></div>
+  </div>
+</div>
+</div>
+
+<div id="p-heatmap" class="page">
+<div class="wrap">
+  <div class="sec">
+    <div class="sec-t">Секторна аналітика · 24 год</div>
+    <button class="btn btn-amber" onclick="doSnap()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Зберегти картинку
+    </button>
+  </div>
+  <div class="hmgrid" id="hmGrid"></div>
+  <div class="sec"><div class="sec-t">Всі монети · Теплова карта</div></div>
+  <div class="coin-hm-grid" id="chmGrid"></div>
+</div>
+</div>
+
+<div id="p-news" class="page">
+<div class="wrap">
+  <div class="sec"><div class="sec-t">AI Аналіз Новин · Українською</div></div>
+  <div class="news-grid">
+    <div class="news-feed" id="newsFeed"></div>
+    <div>
+      <div class="ai-box">
+        <div class="ai-hd">
+          <div class="ai-ava">🤖</div>
+          <div><div class="ai-title">AI Підсумок дня</div><div class="ai-sub">Авто-оновлення · CryptoTime</div></div>
+        </div>
+        <div class="ai-body">
+          <div class="ai-text" id="aiSummary">Аналізую ринок...</div>
+          <div class="sig-lbl">Настрій по активах</div>
+          <div id="aiSigs"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div id="snap"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+var COINS=[],GLOBAL={},FEAR={value:'—',label:'—'};
+var REFRESH_MS=60000;
+var P=function(v){if(v==null)return'—';if(v>=10000)return'$'+Math.round(v).toLocaleString('uk-UA');if(v>=100)return'$'+v.toLocaleString('uk-UA',{minimumFractionDigits:2,maximumFractionDigits:2});if(v>=1)return'$'+v.toFixed(4);if(v>=0.001)return'$'+v.toFixed(5);return'$'+v.toFixed(8)};
+var L=function(v){if(!v)return'—';if(v>=1e12)return'$'+(v/1e12).toFixed(2)+'T';if(v>=1e9)return'$'+(v/1e9).toFixed(2)+'B';if(v>=1e6)return'$'+(v/1e6).toFixed(1)+'M';return'$'+v.toLocaleString()};
+var C=function(v){return v==null?'—':(v>=0?'+':'')+v.toFixed(2)+'%'};
+var CC=function(v){return(v==null||v>=0)?'col-up':'col-dn'};
+var NOW=function(){return new Date().toLocaleString('uk-UA',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})};
+function goPage(name,btn){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on')});document.querySelectorAll('.ntab').forEach(function(b){b.classList.remove('on')});document.getElementById('p-'+name).classList.add('on');btn.classList.add('on');if(name==='heatmap')renderHeatmap();if(name==='movers')renderMovers()}
+function spark(canvas,prices,up){if(!canvas||!prices||!prices.length)return;var dpr=devicePixelRatio||1,W=80,H=30;canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+'px';canvas.style.height=H+'px';var c=canvas.getContext('2d');c.scale(dpr,dpr);var mn=Math.min.apply(null,prices),mx=Math.max.apply(null,prices),r=mx-mn||1;var pts=prices.map(function(p,i){return{x:(i/(prices.length-1))*W,y:H-((p-mn)/r)*(H*.84)-H*.08}});var col=up?'#0CF2AC':'#FF2D55';c.beginPath();pts.forEach(function(p,i){i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y)});c.strokeStyle=col;c.lineWidth=1.5;c.lineJoin='round';c.stroke();c.lineTo(W,H);c.lineTo(0,H);c.closePath();var g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,up?'rgba(12,242,172,.2)':'rgba(255,45,85,.2)');g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.fill()}
+async function fetchCoins(){var u='https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=true&price_change_percentage=1h,7d';var r=await fetch(u);if(!r.ok)throw new Error('CoinGecko '+r.status);return r.json()}
+async function fetchGlobal(){var r=await fetch('https://api.coingecko.com/api/v3/global');if(!r.ok)throw new Error('Global');return(await r.json()).data}
+async function fetchFear(){var r=await fetch('https://api.alternative.me/fng/?limit=1');if(!r.ok)throw new Error('FnG');return(await r.json()).data[0]}
+function coinRow(c,i,pfx){var up7=(c.price_change_percentage_7d_in_currency||0)>=0;return'<div class="tbl-row"><div class="rank">'+(i+1)+'</div><div class="coin-cell"><div class="coin-img"><img src="'+c.image+'" alt="'+c.symbol+'" loading="lazy" onerror="this.style.display=\'none\'"></div><div><div class="coin-n">'+c.name+'</div><div class="coin-s">'+c.symbol.toUpperCase()+'</div></div></div><div class="price-c">'+P(c.current_price)+'</div><div class="chg-c '+CC(c.price_change_percentage_1h_in_currency)+'">'+C(c.price_change_percentage_1h_in_currency)+'</div><div class="chg-c '+CC(c.price_change_percentage_24h)+'">'+C(c.price_change_percentage_24h)+'</div><div class="chg-c '+CC(c.price_change_percentage_7d_in_currency)+'">'+C(c.price_change_percentage_7d_in_currency)+'</div><div class="vol-c">'+L(c.total_volume)+'</div><div class="cap-c">'+L(c.market_cap)+'</div><div class="spark-c"><canvas class="spk" id="'+pfx+i+'"></canvas></div></div>'}
+function renderCoins(){var el=document.getElementById('coinsBody');el.innerHTML=COINS.map(function(c,i){return coinRow(c,i,'s')}).join('');COINS.forEach(function(c,i){spark(document.getElementById('s'+i),c.sparkline_in_7d&&c.sparkline_in_7d.price,(c.price_change_percentage_7d_in_currency||0)>=0)});document.getElementById('coinCount').textContent=COINS.length+' монет'}
+function renderHero(){var btc=COINS.find(function(c){return c.id==='bitcoin'});var eth=COINS.find(function(c){return c.id==='ethereum'});if(btc){document.getElementById('hBtcP').textContent=P(btc.current_price);var bc=document.getElementById('hBtcC');bc.textContent=C(btc.price_change_percentage_24h)+' за 24г';bc.className='hcard-sub '+CC(btc.price_change_percentage_24h);document.getElementById('hBtcM').textContent='Mcap: '+L(btc.market_cap)}if(eth){document.getElementById('hEthP').textContent=P(eth.current_price);var ec=document.getElementById('hEthC');ec.textContent=C(eth.price_change_percentage_24h)+' за 24г';ec.className='hcard-sub '+CC(eth.price_change_percentage_24h);document.getElementById('hEthM').textContent='Об\'єм 24г: '+L(eth.total_volume)}var fv=parseInt(FEAR.value)||0;document.getElementById('hFgV').textContent=fv||'—';document.getElementById('hFgL').textContent=FEAR.label;document.getElementById('fgNeedle').style.left=fv+'%';var sorted=[].concat(COINS).filter(function(c){return c.price_change_percentage_24h!=null}).sort(function(a,b){return b.price_change_percentage_24h-a.price_change_percentage_24h});var top=sorted[0];if(top){document.getElementById('hTopS').textContent=top.symbol.toUpperCase()+' · '+P(top.current_price);document.getElementById('hTopC').textContent='🚀 '+C(top.price_change_percentage_24h)+' за 24г';document.getElementById('hTopM').textContent=top.name}}
+function renderGlobal(){if(!GLOBAL.total_market_cap)return;document.getElementById('gMcap').textContent=L(GLOBAL.total_market_cap&&GLOBAL.total_market_cap.usd);document.getElementById('gDom').textContent=((GLOBAL.market_cap_percentage&&GLOBAL.market_cap_percentage.btc)||0).toFixed(1)+'%';document.getElementById('gVol').textContent=L(GLOBAL.total_volume&&GLOBAL.total_volume.usd);document.getElementById('gActive').textContent=(GLOBAL.active_cryptocurrencies||'—').toLocaleString()}
+function renderIndicators(){var dom=(GLOBAL.market_cap_percentage&&GLOBAL.market_cap_percentage.btc)||0;document.getElementById('iBtcDom').textContent=dom.toFixed(1)+'%';document.getElementById('iBtcDomBar').style.width=dom+'%';var vol=(GLOBAL.total_volume&&GLOBAL.total_volume.usd)||0;var mcap=(GLOBAL.total_market_cap&&GLOBAL.total_market_cap.usd)||1;var ratio=(vol/mcap*100).toFixed(1);document.getElementById('iVolRatio').textContent=ratio+'%';var rs=document.getElementById('iVolRatioS');rs.textContent=parseFloat(ratio)>=10?'✅ Ринок активний':'⚠️ Низька активність';rs.className='icard-sub '+(parseFloat(ratio)>=10?'col-up':'col-dn');var by24=[].concat(COINS).filter(function(c){return c.price_change_percentage_24h!=null}).sort(function(a,b){return b.price_change_percentage_24h-a.price_change_percentage_24h});var gainer=by24[0],loser=by24[by24.length-1];if(gainer){document.getElementById('iGainerSym').textContent=gainer.symbol.toUpperCase()+' · '+P(gainer.current_price);document.getElementById('iGainerChg').textContent='🔥 '+C(gainer.price_change_percentage_24h);document.getElementById('iGainerDesc').textContent=gainer.name+' — найбільший ріст серед топ-50 за 24г'}if(loser){document.getElementById('iLoserSym').textContent=loser.symbol.toUpperCase()+' · '+P(loser.current_price);document.getElementById('iLoserChg').textContent='💀 '+C(loser.price_change_percentage_24h);document.getElementById('iLoserDesc').textContent=loser.name+' — найбільше падіння серед топ-50 за 24г'}var green=COINS.filter(function(c){return(c.price_change_percentage_24h||0)>=0}).length;var pct=COINS.length?Math.round(green/COINS.length*100):0;document.getElementById('iGreenPct').textContent=pct+'%';var gs=document.getElementById('iGreenSub');gs.textContent=green+'/'+COINS.length+' монет у плюсі';gs.className='icard-sub '+(pct>=50?'col-up':'col-dn')}
+function buildTicker(){var top=COINS.slice(0,10);var html=top.concat(top).map(function(c){return'<span class="t-item"><span class="t-sym">'+c.symbol.toUpperCase()+'</span><span class="t-px">'+P(c.current_price)+'</span><span class="'+((c.price_change_percentage_24h||0)>=0?'t-up':'t-dn')+'">'+C(c.price_change_percentage_24h)+'</span></span>'}).join('');document.getElementById('tk').innerHTML=html}
+function renderMovers(){var by24=[].concat(COINS).filter(function(c){return c.price_change_percentage_24h!=null}).sort(function(a,b){return b.price_change_percentage_24h-a.price_change_percentage_24h});var gainers=by24.slice(0,8);var losers=by24.slice().reverse().slice(0,8);function mRow(c,i,isG){var pct=c.price_change_percentage_24h||0;var mx=isG?Math.abs(gainers[0]&&gainers[0].price_change_percentage_24h||1):Math.abs(losers[0]&&losers[0].price_change_percentage_24h||1);var fw=Math.min(100,Math.abs(pct)/mx*100).toFixed(0);var col=pct>=0?'var(--teal)':'var(--red)';return'<div class="mover-row"><div class="mover-pos">'+(i+1)+'</div><div class="mover-logo"><img src="'+c.image+'" alt="" loading="lazy" onerror="this.style.display=\'none\'"></div><div class="mover-info"><div class="mover-name">'+c.name+'</div><div class="mover-price">'+P(c.current_price)+'</div></div><div class="mover-bar"><div class="mover-fill" style="width:'+fw+'%;background:'+col+'"></div></div><div class="mover-chg" style="color:'+col+'">'+C(pct)+'</div></div>'}
+document.getElementById('moversGrid').innerHTML='<div class="mover-panel"><div class="mover-head" style="color:var(--teal)">🚀 Топ Гейнери · 24г</div>'+gainers.map(function(c,i){return mRow(c,i,true)}).join('')+'</div><div class="mover-panel"><div class="mover-head" style="color:var(--red)">💀 Топ Лузери · 24г</div>'+losers.map(function(c,i){return mRow(c,i,false)}).join('')+'</div>';var byVol=[].concat(COINS).sort(function(a,b){return(b.total_volume||0)-(a.total_volume||0)}).slice(0,15);var vb=document.getElementById('volBody');vb.innerHTML=byVol.map(function(c,i){return coinRow(c,i,'v')}).join('');byVol.forEach(function(c,i){spark(document.getElementById('v'+i),c.sparkline_in_7d&&c.sparkline_in_7d.price,(c.price_change_percentage_7d_in_currency||0)>=0)})}
+var SECTORS={'Layer 1':['bitcoin','ethereum','solana','avalanche-2','cardano','near','tron','polkadot'],'DeFi':['uniswap','chainlink','aave','maker','compound-governance-token','curve-dao-token'],'Layer 2':['matic-network','arbitrum','optimism','immutable-x'],'Meme':['dogecoin','shiba-inu','pepe','floki'],'Exchange':['binancecoin','okb','kucoin-shares'],'AI / Tech':['render-token','fetch-ai','akash-network','ocean-protocol']};
+function renderHeatmap(){var grid=document.getElementById('hmGrid');grid.innerHTML=Object.entries(SECTORS).map(function(e){var name=e[0],ids=e[1];var ms=COINS.filter(function(c){return ids.indexOf(c.id)>=0});var avg=ms.length?ms.reduce(function(s,c){return s+(c.price_change_percentage_24h||0)},0)/ms.length:0;var intensity=Math.min(Math.abs(avg)/8,1);var pos=avg>=0;var bg=pos?'rgba(12,242,172,'+(0.08+intensity*.35)+')':'rgba(255,45,85,'+(0.08+intensity*.35)+')';var bdr=pos?'rgba(12,242,172,.25)':'rgba(255,45,85,.25)';var col=pos?'#0CF2AC':'#FF2D55';return'<div class="hmcell" style="background:'+bg+';border:1px solid '+bdr+'"><div class="hm-s" style="color:'+col+'">'+name+'</div><div class="hm-v" style="color:'+col+'">'+C(avg)+'</div></div>'}).join('');var cg=document.getElementById('chmGrid');cg.innerHTML=COINS.map(function(c){var pct=c.price_change_percentage_24h||0;var intensity=Math.min(Math.abs(pct)/10,1);var pos=pct>=0;var bg=pos?'rgba(12,242,172,'+(0.06+intensity*.3)+')':'rgba(255,45,85,'+(0.06+intensity*.3)+')';var bdr=pos?'rgba(12,242,172,.2)':'rgba(255,45,85,.2)';var col=pos?'#0CF2AC':'#FF2D55';return'<div class="chm-cell" style="background:'+bg+';border:1px solid '+bdr+'" onmouseenter="this.style.transform=\'scale(1.06)\'" onmouseleave="this.style.transform=\'scale(1)\'"><div class="chm-sym" style="color:'+col+'">'+c.symbol.toUpperCase()+'</div><div class="chm-pct" style="color:'+col+'">'+C(pct)+'</div></div>'}).join('')}
+var NEWS=[{title:'BlackRock збільшив позицію в Bitcoin ETF до $21 млрд',ai:'Найбільший у світі керуючий активами нарощує крипто-позиції. <b>Інституційні гравці купують — це найсильніший бичачий сигнал.</b> Такі покупки утримують ціну від глибокої корекції.',sent:'bull',coins:['BTC'],src:'CoinDesk',time:'2г тому'},{title:'Ethereum провів оновлення мережі — комісії впали на 40%',ai:'Після апгрейду середня комісія суттєво знизилась. <b>Це прямо позитивно для DeFi та L2:</b> більше транзакцій, зростання TVL, більше активних користувачів.',sent:'bull',coins:['ETH','ARB','OP'],src:'Decrypt',time:'4г тому'},{title:'SEC відклала рішення по Solana ETF ще на 60 днів',ai:'Регулятор не поспішає. <b>Короткостроково тиск на SOL збережеться.</b> Проте прецедент Bitcoin ETF означає, що схвалення — питання часу, а не принципу.',sent:'bear',coins:['SOL'],src:'The Block',time:'6г тому'},{title:'Обсяг DEX перевищив $200 млрд за місяць — новий рекорд',ai:'Децентралізовані біржі встановили черговий рекорд. <b>Зростання активних гаманців +35% м/м</b> — ознака реального попиту, а не спекуляцій.',sent:'bull',coins:['UNI','AAVE'],src:'DeFi Pulse',time:'9г тому'},{title:'Китай пом\'якшив риторику щодо блокчейн-технологій',ai:'Держзасоби вперше за два роки написали нейтрально про блокчейн. <b>Сигнал неоднозначний</b> — може означати легалізацію enterprise-блокчейнів, але не крипто-торгівлі.',sent:'neut',coins:['BTC','ETH'],src:'Reuters',time:'11г тому'},{title:'MicroStrategy придбала ще 12,000 BTC за $800 млн',ai:'Компанія Майкла Сейлора продовжує стратегію агресивних покупок. <b>Загальна позиція перевищила 400,000 BTC.</b> Корпоративний попит залишається структурним бичачим фактором.',sent:'bull',coins:['BTC'],src:'Bloomberg',time:'14г тому'}];
+function renderNews(){document.getElementById('newsFeed').innerHTML=NEWS.map(function(n){var bdrCol=n.sent==='bull'?'var(--teal)':n.sent==='bear'?'var(--red)':'var(--amber)';var badgeCls='ntag-'+(n.sent==='neut'?'neut':n.sent);var badgeTxt=n.sent==='bull'?'🐂 Бичачий':n.sent==='bear'?'🐻 Ведмежий':'⚡ Нейтральний';return'<div class="nitem"><div class="nbar" style="background:'+bdrCol+'"></div><div class="nbody"><div class="ntags"><span class="ntag '+badgeCls+'">'+badgeTxt+'</span><span class="ntag ntag-src">'+n.src+'</span><span class="ntag-time">'+n.time+'</span></div><div class="ntitle">'+n.title+'</div><div class="nai">🤖 '+n.ai+'</div><div class="ncoins">'+n.coins.map(function(c){return'<span class="ncoin">'+c+'</span>'}).join('')+'</div></div></div>'}).join('');var bull=NEWS.filter(function(n){return n.sent==='bull'}).length;document.getElementById('aiSummary').innerHTML='Сьогодні ринок показує <b>обережний оптимізм</b> — '+bull+' з '+NEWS.length+' новин бичачі.<br><br>Інституційний попит на BTC від BlackRock та MicroStrategy залишається <b>найсильнішим структурним фактором</b>. Оновлення Ethereum покращило настрій у DeFi-секторі.<br><br>Головний ризик — <b>регуляторний тиск</b> на окремі альткоїни (SOL).<br><br><span style="color:var(--txt3)">Оновлено: '+NOW()+'</span>';document.getElementById('aiSigs').innerHTML=[{sym:'BTC',mood:'Інституційний попит сильний',ico:'🐂'},{sym:'ETH',mood:'Позитив після апгрейду',ico:'🟢'},{sym:'SOL',mood:'Тиск від регулятора',ico:'⚠️'},{sym:'DeFi',mood:'Рекордна активність',ico:'📈'},{sym:'Alts',mood:((GLOBAL.market_cap_percentage&&GLOBAL.market_cap_percentage.btc)||55)<55?'Альтсезон наближається':'BTC домінує',ico:((GLOBAL.market_cap_percentage&&GLOBAL.market_cap_percentage.btc)||55)<55?'🔄':'₿'}].map(function(s){return'<div class="sig"><div class="sig-sym">'+s.sym+'</div><div class="sig-mood">'+s.mood+'</div><div class="sig-ico">'+s.ico+'</div></div>'}).join('')}
+async function doSnap(){toast('⏳ Генерую картинку...');var btc=COINS.find(function(c){return c.id==='bitcoin'});var eth=COINS.find(function(c){return c.id==='ethereum'});var top10=COINS.slice(0,10);var snap=document.getElementById('snap');snap.style.cssText='position:fixed;left:-9999px;top:-9999px;width:1280px;background:#05080C;font-family:JetBrains Mono,monospace;color:#B8CCDF;overflow:hidden;';snap.innerHTML='<div style="width:1280px;background:#05080C;overflow:hidden;"><div style="height:4px;background:linear-gradient(90deg,#F7931A 0%,#0CF2AC 50%,#4B9FFF 100%)"></div><div style="padding:44px 52px 40px;"><div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:36px;"><div><div style="font-family:Unbounded,sans-serif;font-size:42px;font-weight:900;color:#E8F0F8;letter-spacing:-1px;">Crypto<span style="color:#F7931A">Time</span></div><div style="font-size:9px;letter-spacing:3px;color:#304560;margin-top:6px;">CRYPTO INTELLIGENCE · UKRAINE</div></div><div style="text-align:right;"><div style="font-size:8px;letter-spacing:2px;color:#304560;margin-bottom:4px;">ЗНІМОК РИНКУ</div><div style="font-size:13px;color:#E8F0F8;">'+NOW()+'</div><div style="font-size:10px;color:#6B8BAA;margin-top:3px;">Fear & Greed: '+FEAR.value+' · '+FEAR.label+'</div></div></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;">'+ [{l:'Bitcoin',v:P(btc&&btc.current_price),s:C(btc&&btc.price_change_percentage_24h)+' 24г',u:(btc&&btc.price_change_percentage_24h||0)>=0,m:L(btc&&btc.market_cap)},{l:'Ethereum',v:P(eth&&eth.current_price),s:C(eth&&eth.price_change_percentage_24h)+' 24г',u:(eth&&eth.price_change_percentage_24h||0)>=0,m:L(eth&&eth.market_cap)},{l:'Market Cap',v:L(GLOBAL.total_market_cap&&GLOBAL.total_market_cap.usd),s:'BTC Dom: '+((GLOBAL.market_cap_percentage&&GLOBAL.market_cap_percentage.btc)||0).toFixed(1)+'%',u:true,m:'Загальний ринок'},{l:'Fear & Greed',v:FEAR.value,s:FEAR.label,u:parseInt(FEAR.value)>=50,m:'Ринковий настрій'}].map(function(m){return'<div style="background:#090E16;border:1px solid #1A2840;border-radius:10px;padding:20px;position:relative;overflow:hidden;"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#F7931A,transparent)"></div><div style="font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:#304560;margin-bottom:10px;">'+m.l+'</div><div style="font-family:Unbounded,sans-serif;font-size:26px;font-weight:700;color:#E8F0F8;line-height:1;margin-bottom:8px;">'+m.v+'</div><div style="font-size:12px;font-weight:600;color:'+(m.u?'#0CF2AC':'#FF2D55')+'">'+m.s+'</div><div style="font-size:9px;color:#304560;margin-top:3px;">'+m.m+'</div></div>'}).join('')+'</div><div style="background:#090E16;border:1px solid #1A2840;border-radius:10px;overflow:hidden;"><div style="display:grid;grid-template-columns:36px 2fr 1.5fr 100px 100px 110px;padding:10px 20px;background:#0D1520;border-bottom:1px solid #1A2840;">'+['#','МОНЕТА','ЦІНА','24ГОД','7 ДНІВ','КАПІТ.'].map(function(h,i){return'<div style="font-size:8px;letter-spacing:2px;color:#304560;text-align:'+(i>1?'right':'left')+'">'+h+'</div>'}).join('')+'</div>'+top10.map(function(c,i){var c24=c.price_change_percentage_24h||0,c7=c.price_change_percentage_7d_in_currency||0;return'<div style="display:grid;grid-template-columns:36px 2fr 1.5fr 100px 100px 110px;padding:13px 20px;border-bottom:1px solid rgba(26,40,64,.5);align-items:center;"><div style="font-size:10px;color:#304560">'+(i+1)+'</div><div style="display:flex;align-items:center;gap:9px;"><div style="width:28px;height:28px;border-radius:50%;background:#0D1520;border:1px solid #1A2840;overflow:hidden;display:flex;align-items:center;justify-content:center;"><img src="'+c.image+'" style="width:100%;height:100%;border-radius:50%" onerror="this.style.display=\'none\'"></div><div><div style="font-family:Unbounded,sans-serif;font-size:11px;font-weight:600;color:#E8F0F8">'+c.name+'</div><div style="font-size:8px;color:#304560;letter-spacing:1px;margin-top:2px">'+c.symbol.toUpperCase()+'</div></div></div><div style="font-size:12px;font-weight:600;color:#E8F0F8;text-align:right">'+P(c.current_price)+'</div><div style="font-size:11px;font-weight:600;text-align:right;color:'+(c24>=0?'#0CF2AC':'#FF2D55')+'">'+C(c24)+'</div><div style="font-size:11px;font-weight:600;text-align:right;color:'+(c7>=0?'#0CF2AC':'#FF2D55')+'">'+C(c7)+'</div><div style="font-size:10px;text-align:right;color:#6B8BAA">'+L(c.market_cap)+'</div></div>'}).join('')+'</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:24px;"><div style="font-size:8px;letter-spacing:2px;color:#304560;">Дані: CoinGecko API · CryptoTime Intelligence</div><div style="font-family:Unbounded,sans-serif;font-size:14px;font-weight:700;color:#F7931A;letter-spacing:1px;">t.me/CryptoTime</div></div></div></div>';
+await new Promise(function(r){setTimeout(r,700)});
+try{var cv=await html2canvas(snap,{scale:2,useCORS:true,allowTaint:true,backgroundColor:'#05080C',width:1280,logging:false});var a=document.createElement('a');a.href=cv.toDataURL('image/png');a.download='CryptoTime_'+new Date().toISOString().slice(0,10)+'.png';a.click();toast('✅ Картинку збережено!')}catch(e){console.error(e);toast('❌ Помилка: '+e.message)}snap.innerHTML=''}
+var toastTimer;
+function toast(msg){clearTimeout(toastTimer);var el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');toastTimer=setTimeout(function(){el.classList.remove('on')},3200)}
+async function load(){var results=await Promise.allSettled([fetchCoins(),fetchGlobal(),fetchFear()]);var cr=results[0],gr=results[1],fr=results[2];if(cr.status==='fulfilled'&&Array.isArray(cr.value)){COINS=cr.value;renderCoins();buildTicker();renderHero();renderIndicators();renderNews();if(document.getElementById('p-heatmap').classList.contains('on'))renderHeatmap();if(document.getElementById('p-movers').classList.contains('on'))renderMovers()}else{document.getElementById('coinsBody').innerHTML='<div style="padding:40px;text-align:center;color:var(--txt3);font-size:11px;letter-spacing:1px;line-height:2">⚠️ Завантаження даних...<br><span style="font-size:9px">CoinGecko API rate limit — дані оновляться автоматично через 1 хв.<br>'+((cr.reason&&cr.reason.message)||'')+'</span></div>'}if(gr.status==='fulfilled'){GLOBAL=gr.value;renderGlobal();renderIndicators()}if(fr.status==='fulfilled'){FEAR={value:fr.value.value,label:fr.value.value_classification};renderHero()}}
+async function reload(){toast('↻ Оновлення...');await load();toast('✅ Дані оновлено · '+NOW())}
+renderNews();load();setInterval(load,REFRESH_MS);
+</script>
+</body>
+</html>
